@@ -133,7 +133,7 @@ shared_examples :cacheable do
     describe '#cache!' do
       it 'should call .cache_set' do
         instance = model.first
-        model.should_receive(:cache_set).with(instance.id.to_s, instance)
+        model.should_receive(:cache_set).with(instance.pk.to_s, instance)
         instance.cache!
       end
     end

@@ -5,7 +5,7 @@ module Sequel::Plugins
     module InstanceMethods
       def after_initialize
         super
-        cache! unless id.nil?
+        cache! unless pk.nil?
       end
 
       def after_save
@@ -33,7 +33,7 @@ module Sequel::Plugins
       end
 
       def cache_key
-        "#{self.id.to_s}"
+        "#{self.pk.to_s}"
       end
 
       def to_msgpack(*args)
