@@ -4,8 +4,6 @@ shared_examples :cacheable do
   let(:model) { described_class }
 
   before do
-    model.cache_clear(:query)
-
     3.times do
       model.create(
         :string => Forgery::Basic.text,
@@ -81,20 +79,12 @@ shared_examples :cacheable do
       it { should have(3).records }
 
       it { should == model.all }
-
-      it 'should store query cache' do
-        expect { fetch_all }.to change { model.caches[:query].size }.from(0).to(1)
-      end
     end
 
     describe '#first' do
       subject(:fetch_first) { dataset.first }
 
       it { should be_kind_of(model) }
-
-      it 'should store query cache' do
-        expect { fetch_first }.to change { model.caches[:query].size }.from(0).to(1)
-      end
     end
   end
 
@@ -141,11 +131,6 @@ shared_examples :cacheable do
     describe '#uncache!' do
       it 'should call .cache_del' do
         model.should_receive(:cache_del).at_least(1).times
-        instance.uncache!
-      end
-
-      it 'should call .cache_clear(:query)' do
-        model.should_receive(:cache_clear).with(:query)
         instance.uncache!
       end
     end
