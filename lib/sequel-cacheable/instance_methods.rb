@@ -5,7 +5,7 @@ module Sequel::Plugins
     module InstanceMethods
       def after_initialize
         super
-        cache! unless pk.nil?
+        cache!
       end
 
       def after_save
@@ -19,7 +19,7 @@ module Sequel::Plugins
       end
 
       def cache!
-        model.cache_set(cache_key, self)
+        model.cache_set(cache_key, self) unless new?
       end
 
       def uncache!
