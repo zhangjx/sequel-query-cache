@@ -27,10 +27,6 @@ module Sequel::Plugins
           store,
           Packer.factory(@cache_options[:pack_lib])
         )
-        @caches = {
-          :instance => [],
-          :query => []
-        }
       end
     end
   end

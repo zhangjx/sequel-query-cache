@@ -3,7 +3,7 @@
 module Sequel::Plugins
   module Cacheable
     module ClassMethods
-      attr_reader :cache_driver, :cache_options, :caches
+      attr_reader :cache_driver, :cache_options
 
       def inherited(subclass)
         super
@@ -48,7 +48,6 @@ module Sequel::Plugins
       end
 
       def cache_set(key, value, ttl = @cache_options[:ttl])
-        @caches[key.match(/\AQuery:/) ? :query : :instance] << key
         cache_driver.set(cache_key(key), value, ttl)
       end
 
@@ -57,17 +56,11 @@ module Sequel::Plugins
       end
 
       def cache_fetch(key, ttl = @cache_options[:ttl], &block)
-        @caches[key.match(/\AQuery:/) ? :query : :instance] << key
         cache_driver.fetch(cache_key(key), ttl, &block)
       end
 
       def cache_del(key)
-        @caches[key.match(/\AQuery:/) ? :query : :instance].delete(key)
         cache_driver.del(cache_key(key))
-      end
-
-      def cache_clear(type)
-        @caches[type].dup.each {|key| cache_del(key) }
       end
     end
   end

@@ -24,7 +24,6 @@ module Sequel::Plugins
 
       def uncache!
         model.cache_del(cache_key)
-        model.cache_clear(:query)
       end
 
       def recache!
