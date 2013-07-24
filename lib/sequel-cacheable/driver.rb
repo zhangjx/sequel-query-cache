@@ -1,56 +1,53 @@
+# coding: utf-8
 module Sequel::Plugins
   module Cacheable
-    DRIVERS = %w(memcache dalli redis).freeze
-
     class Driver
-      def self.factory(*args)
-        case args[0].class.name
+      def self.from_store(store, opts={})
+        case store.class.name
         when 'Memcache'
-          MemcacheDriver.new(*args)
+          require 'sequel-cacheable/driver/memcache'
+          MemcacheDriver.new(store, opts)
         when 'Dalli::Client'
-          DalliDriver.new(*args)
-        when 'Redis'
-          RedisDriver.new(*args)
+          require 'sequel-cacheable/driver/dalli'
+          DalliDriver.new(store, opts)
         else
-          Driver.new(*args)
+          Driver.new(store, opts)
         end
       end
 
-      def initialize(store, pack_lib = MessagePackPacker)
+      attr_reader :store, :serializer
+
+      def initialize(store, opts={})
         @store = store
-        @packer = pack_lib
+        @serializer = opts[:serializer] || _default_serializer
       end
 
       def get(key)
-        val = @store.get(key)
-
-        return val.nil? || val.empty? ? nil : @packer.unpack(val)
+        val = store.get(key)
+        val ? serializer.deserialize(val) : nil
       end
 
-      def set(key, val, expire = nil)
-        @store.set(key, @packer.pack(val))
-        expire(key, expire) unless expire.nil?
-
-        return val
+      def set(key, val, opts = {})
+        store.set(key, serializer.serialize(val))
+        expire(key, opts[:ttl]) unless opts[:ttl].nil?
+        val
       end
 
       def del(key)
-        @store.del(key)
-
-        return nil
+        store.del(key)
+        nil
       end
 
       def expire(key, time)
-        @store.expire(key, time)
+        store.expire(key, time)
       end
 
-      def fetch(key, ttl = nil, &block)
-        get(key) || set(key, block.call, ttl)
+      private
+
+      def _default_serializer
+        require 'sequel-cacheable/message_pack_serializer'
+        MessagePackSerializer
       end
     end
   end
-end
-
-Sequel::Plugins::Cacheable::DRIVERS.each do |driver|
-  require "sequel-cacheable/driver/#{driver}"
 end

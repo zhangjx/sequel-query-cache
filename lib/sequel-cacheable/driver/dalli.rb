@@ -1,17 +1,16 @@
+# coding: utf-8
 module Sequel::Plugins
   module Cacheable
     class DalliDriver < Driver
       def del(key)
-        @store.delete(key)
-
-        return nil
+        store.delete(key)
       end
 
       def expire(key, time)
         if time > 0
-          @store.touch(key, time)
+          store.touch(key, time)
         else
-          @store.delete(key)
+          store.delete(key)
         end
       end
     end

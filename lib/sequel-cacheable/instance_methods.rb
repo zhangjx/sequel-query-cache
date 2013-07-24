@@ -1,60 +1,28 @@
 # coding: utf-8
-
 module Sequel::Plugins
   module Cacheable
     module InstanceMethods
-      def after_initialize
-        super
-        cache!
-      end
-
       def after_save
-        super
-        recache!
-      end
-
-      def delete(*args)
-        uncache!
-        super
-      end
-
-      def cache!
-        model.cache_set(cache_key, self) unless new?
-      end
-
-      def uncache!
-        model.cache_del(cache_key)
-      end
-
-      def recache!
-        uncache!
         cache!
       end
 
       def cache_key
-        "#{self.pk.to_s}"
+        this.cache_key
       end
 
-      def to_msgpack(*args)
-        msgpack_hash.to_msgpack
+      def cache!(opts={})
+        this.cache_set([self], opts) if this.is_cacheable?
+        self
       end
 
-      def msgpack_hash
-        hash = {}
-        @values.each_pair do | key, value |
-          case value
-          when Date
-            value = [value.year, value.mon, value.mday, value.start]
-          when Sequel::SQLTime, Time
-            value = [value.to_i, value.usec]
-          when BigDecimal, Bignum
-            value = value.to_s
-          end
-          hash[key] = value
-        end
-        hash
+      def uncache!
+        this.cache_del
+        self
       end
-      private :msgpack_hash
+
+      def to_msgpack(io = nil)
+        values.to_msgpack(io)
+      end
     end
   end
 end
