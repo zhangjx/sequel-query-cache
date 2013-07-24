@@ -8,7 +8,7 @@ require 'sequel-cacheable/dataset_methods'
 
 module Sequel::Plugins
   module Cacheable
-    def self.configure(model, store, opts = {})
+    def self.configure(model, store, opts={})
       model.instance_eval do
         @cache_options = {
           :ttl => 3600,

@@ -102,7 +102,7 @@ module Sequel::Plugins
         end
       end
 
-      def clone(opts = nil)
+      def clone(opts=nil)
         c = super(opts)
         # Done because recalculating the MD5 hash every time cache_key is called
         # is ridiculous, so it's memoized. However, when the dataset is cloned,

@@ -27,7 +27,7 @@ module Sequel::Plugins
         val ? serializer.deserialize(val) : nil
       end
 
-      def set(key, val, opts = {})
+      def set(key, val, opts={})
         store.set(key, serializer.serialize(val))
         expire(key, opts[:ttl]) unless opts[:ttl].nil?
         val
