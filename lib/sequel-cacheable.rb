@@ -18,7 +18,7 @@ module Sequel::Plugins
 
         @cache_driver = Driver.from_store(
           store,
-          serializer: @cache_options.delete(:serializer)
+          :serializer => @cache_options.delete(:serializer)
         )
       end
     end
