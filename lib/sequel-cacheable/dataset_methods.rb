@@ -108,6 +108,7 @@ module Sequel::Plugins
         # is ridiculous, so it's memoized. However, when the dataset is cloned,
         # it's usually for modification purposes in a chain, so that variable
         # needs to get cleared.
+        c.cache_key = nil
         c.instance_variable_set(:@default_cache_key, nil)
         c
       end
