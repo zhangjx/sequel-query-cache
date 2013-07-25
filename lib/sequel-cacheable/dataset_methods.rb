@@ -21,17 +21,37 @@ module Sequel::Plugins
         model.cache_options
       end
 
-      # Determines whether or not a dataset should be cached. If +@is_cacheable+
-      # is set to anything that is not +nil+, that value will be returned. If it
-      # is +nil+ the a default value will be returned by </tt>_is_cacheable?</tt>.
-      def is_cacheable?
-        return @is_cacheable unless @is_cacheable.nil?
-        _is_cacheable?
+      # Determines whether or not to cache a dataset based on the configuration
+      # settings of the plugin.
+      #--
+      # TODO: Specify a place to find those settings. However, where those are
+      # applied is currently in flux.
+      #++
+      def is_cacheable_by_default?
+        if @opts[:limit] && cache_options[:cache_if_limit]
+          return true if
+            (cache_options[:cache_if_limit] == true) ||
+            (cache_options[:cache_if_limit] >= @opts[:limit])
+        end
+        cache_options[:cache_by_default]
       end
 
-      # Overrides the default value for </tt>_is_cacheable?</tt>. The value of
-      # of +@is_cacheable+ is cloned when the dataset is cloned.
-      attr_writer :is_cacheable
+      # Determines whether or not a dataset should be cached. If
+      # <tt>@is_cacheable</tt> is set that value will be returned, otherwise the
+      # default value will be returned by #is_cacheable_by_default?
+      def is_cacheable?
+        defined?(@is_cacheable) ? is_cacheable_by_default? : @is_cacheable
+      end
+
+      # Sets the value for <tt>@is_cacheable</tt> which is used as the return
+      # value from #is_cacheable?. <tt>@is_cacheable</tt> is cloned when the
+      # dataset is cloned.
+      #
+      # *Note:* In general, #cached and #not_cached should be used to set this
+      # value. This method exists primarily for their use.
+      def is_cacheable=(is_cacheable)
+        @is_cacheable = !!is_cacheable
+      end
 
       # Clones the current dataset and forces it to be cached, returning
       # the new dataset. This is useful for chaining purposes:
@@ -63,15 +83,18 @@ module Sequel::Plugins
       end
 
       # Clones the current dataset and returns the caching state to whatever
-      # would be default for that dataset. See +cached+ for further details
+      # would be default for that dataset. See #cached for further details
       # and examples.
+      #
+      # *Note:* This is the "proper" way to clear <tt>@is_cacheable</tt> once
+      # it's been set.
       def default_cached
-        if @is_cacheable.nil?
-          self
-        else
+        if defined? @is_cacheable
           c = clone
-          c.is_cacheable = nil
+          c.remove_instance_variable(:@is_cacheable)
           c
+        else
+          self
         end
       end
 
@@ -191,23 +214,6 @@ module Sequel::Plugins
         c.instance_variable_set(:@default_cache_key, nil)
         c
       end
-
-      private
-
-      # Determines whether or not to cache a dataset based on the configuration
-      # settings of the plugin.
-      #
-      # TODO: Specify a place to find those settings. However, where those are
-      # applied is currently in flux.
-      def _is_cacheable?
-        if @opts[:limit] && cache_options[:cache_if_limit]
-          return true if
-            (cache_options[:cache_if_limit] == true) ||
-            (cache_options[:cache_if_limit] >= @opts[:limit])
-        end
-        cache_options[:cache_by_default]
-      end
-
     end
   end
 end
