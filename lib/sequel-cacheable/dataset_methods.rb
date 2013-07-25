@@ -4,23 +4,23 @@ require 'digest/md5'
 module Sequel::Plugins
   module Cacheable
     module DatasetMethods
-      # Gets the cache driver from the model.
+      # Returns the model's cache driver.
       #--
-      # TODO: It shouldn't actually do that. This plugin should work without
-      # models being involved at all.
+      # TODO: Caching should be modified to be a database/dataset extension with
+      # a tiny plugin for the models. However, this works just fine for now.
       #++
       def cache_driver
         model.cache_driver
       end
 
-      # Gets the cache driver from the model.
-      #--
-      # TODO: It shouldn't actually do that. This plugin should work without
-      # models being involved at all. Datasets should have their own options,
-      # specifically so they can be overridden by #cached.
-      #++
-      def cache_options
-        model.cache_options
+      # Copies the model's +cache_options+ and merges them with options provided
+      # by +opts+ if any are provided. Returns the current cache_options.
+      #
+      # <tt>@cache_options</tt> is cloned when the dataset is cloned.
+      def cache_options(opts=nil)
+        @cache_options ||= model.cache_options
+        @cache_options = @cache_options.merge(opts) if opts
+        @cache_options
       end
 
       # Determines whether or not to cache a dataset based on the configuration
@@ -66,13 +66,11 @@ module Sequel::Plugins
       # have the same result:
       #
       #   dataset.cached.where(column1: true).order(:column2).all
-      #--
-      # TODO: Options passed here should override the defaults. However this
-      # the dataset will need its own options apart from the model. (Eventually
-      # this should work entirely without models anyway.
-      #++
-      def cached(opts={})
+      #
+      # +opts+ is passed to #cache_options on the new dataset.
+      def cached(opts=nil)
         c = clone
+        c.cache_options(opts)
         c.is_cacheable = true
         c
       end
