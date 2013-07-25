@@ -20,7 +20,7 @@ module Sequel::Plugins
         self
       end
 
-      def to_msgpack(io = nil)
+      def to_msgpack(io=nil)
         values.to_msgpack(io)
       end
     end
