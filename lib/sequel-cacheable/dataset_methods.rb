@@ -5,18 +5,20 @@ module Sequel::Plugins
   module Cacheable
     module DatasetMethods
       # Gets the cache driver from the model.
-      #
+      #--
       # TODO: It shouldn't actually do that. This plugin should work without
       # models being involved at all.
+      #++
       def cache_driver
         model.cache_driver
       end
 
       # Gets the cache driver from the model.
-      #
+      #--
       # TODO: It shouldn't actually do that. This plugin should work without
       # models being involved at all. Datasets should have their own options,
-      # specifically so they can be overridden by +cached+.
+      # specifically so they can be overridden by #cached.
+      #++
       def cache_options
         model.cache_options
       end
@@ -53,38 +55,39 @@ module Sequel::Plugins
         @is_cacheable = !!is_cacheable
       end
 
-      # Clones the current dataset and forces it to be cached, returning
-      # the new dataset. This is useful for chaining purposes:
+      # Clones the current dataset, sets it to be cached and returns the new
+      # dataset. This is useful for chaining purposes:
       #
       #   dataset.where(column1: true).order(:column2).cached.all
       #
       # In the above example, the data would always be pulled from the cache or
-      # cached if it wasn't already. The value of +@is_cacheable+ is cloned
-      # when a dataset is cloned, so the following example would also have the
-      # same result:
+      # cached if it wasn't already. The value of <tt>@is_cacheable</tt> is
+      # cloned when a dataset is cloned, so the following example would also
+      # have the same result:
       #
       #   dataset.cached.where(column1: true).order(:column2).all
-      #
+      #--
       # TODO: Options passed here should override the defaults. However this
       # the dataset will need its own options apart from the model. (Eventually
       # this should work entirely without models anyway.
+      #++
       def cached(opts={})
         c = clone
         c.is_cacheable = true
         c
       end
 
-      # Clones the current dataset and forces it to not be cached, returning
-      # the new dataset. See +cached+ for further details and examples.
+      # Clones the current dataset, sets it to not be cached and returns the new
+      # dataset. See #cached for further details and examples.
       def not_cached
         c = clone
         c.is_cacheable = false
         c
       end
 
-      # Clones the current dataset and returns the caching state to whatever
-      # would be default for that dataset. See #cached for further details
-      # and examples.
+      # Clones the current dataset, returns the caching state to whatever
+      # would be default for that dataset and returns the new dataset. See
+      # #cached for further details and examples.
       #
       # *Note:* This is the "proper" way to clear <tt>@is_cacheable</tt> once
       # it's been set.
@@ -143,8 +146,8 @@ module Sequel::Plugins
       #
       # An +opts+ hash can be passed to override any default options being sent
       # to the driver. The most common use for this would be to modify the +ttl+
-      # for a cache. However, this should probably be done using the +cached+
-      # method rather than doing anything directly via this method.
+      # for a cache. However, this should probably be done using #cached rather
+      # than doing anything directly via this method.
       def cache_set(value, opts={})
         db.log_info("CACHE SET: #{cache_key}")
         cache_driver.set(cache_key, value, opts.merge(cache_options))
@@ -176,14 +179,15 @@ module Sequel::Plugins
       # Overrides the dataset's existing +fetch_rows+ method. If the dataset is
       # cacheable it will do one of two things:
       #
-      # 1. If a cache exists it will yield the cached rows rather query the
+      # If a cache exists it will yield the cached rows rather query the
       # database.
-      # 2. If a cache does not exist it will query the database, store the
-      # results in an array, cache those and then yield the results like the
-      # original method would have.
+      #
+      # If a cache does not exist it will query the database, store the results
+      # in an array, cache those and then yield the results like the original
+      # method would have.
       #
       # *Note:* If you're using PostgreSQL, or another database where +each+
-      # iterates with the cursor rather over the returned dataset, you'll lose
+      # iterates with the cursor rather over the dataset results, you'll lose
       # that functionality when caching is enabled for a query since the entire
       # result is iterated first before it is yielded. If that behavior is
       # important, remember to disable caching for that particular query.
@@ -205,13 +209,13 @@ module Sequel::Plugins
         end
       end
 
-      # Overrides the dataset's existing +clone+ method. Clones the existing
+      # Overrides the dataset's existing clone method. Clones the existing
       # dataset but clears any manually set cache key and the memoized default
       # cache key to ensure it's regenerated by the new dataset.
       def clone(opts=nil)
         c = super(opts)
-        c.cache_key = nil
-        c.instance_variable_set(:@default_cache_key, nil)
+        c.remove_instance_variable(:@cache_key)
+        c.remove_instance_variable(:@default_cache_key)
         c
       end
     end
