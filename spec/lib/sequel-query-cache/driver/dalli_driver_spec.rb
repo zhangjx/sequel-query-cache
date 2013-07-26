@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Sequel::Plugins::Cacheable::DalliDriver do
+describe Sequel::Plugins::QueryCache::DalliDriver do
   let(:store) { DalliCli }
 
   include_examples :driver

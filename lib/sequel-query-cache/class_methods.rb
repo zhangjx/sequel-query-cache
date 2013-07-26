@@ -1,6 +1,6 @@
 # coding: utf-8
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     module ClassMethods
       attr_reader :cache_driver, :cache_options
 

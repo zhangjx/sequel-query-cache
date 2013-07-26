@@ -1,6 +1,6 @@
 # coding: utf-8
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     class DalliDriver < Driver
       def del(key)
         store.delete(key)

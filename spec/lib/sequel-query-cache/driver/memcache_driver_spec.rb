@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Sequel::Plugins::Cacheable::MemcacheDriver do
+describe Sequel::Plugins::QueryCache::MemcacheDriver do
   let(:store) { MemcacheCli }
 
   include_examples :driver

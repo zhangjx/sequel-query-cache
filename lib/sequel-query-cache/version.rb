@@ -1,7 +1,7 @@
 # coding: utf-8
 module Sequel
   module Plugins
-    module Cacheable
+    module QueryCache
       MAJOR_VERSION = 1
       MINOR_VERSION = 1
       TINY_VERSION  = 0

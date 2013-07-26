@@ -1,13 +1,13 @@
 # coding: utf-8
 require 'sequel'
-require 'sequel-cacheable/version'
-require 'sequel-cacheable/driver'
-require 'sequel-cacheable/class_methods'
-require 'sequel-cacheable/instance_methods'
-require 'sequel-cacheable/dataset_methods'
+require 'sequel-query-cache/version'
+require 'sequel-query-cache/driver'
+require 'sequel-query-cache/class_methods'
+require 'sequel-query-cache/instance_methods'
+require 'sequel-query-cache/dataset_methods'
 
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     def self.configure(model, store, opts={})
       model.instance_eval do
         @cache_options = {

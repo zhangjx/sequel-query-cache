@@ -2,7 +2,7 @@
 require 'digest/md5'
 
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     module DatasetMethods
       # Returns the model's cache driver.
       #--

@@ -1,4 +1,4 @@
-= sequel-cacheable http://travis-ci.org/rosylilly/sequel-cacheable.png
+= sequel-query-cache http://travis-ci.org/rosylilly/sequel-query-cache.png
 
 This plug-in caching mechanism to implement the Model of the Sequel
 
@@ -7,7 +7,7 @@ This plug-in caching mechanism to implement the Model of the Sequel
 Gemfile write:
 
   gem "sequel"
-  gem "sequel-cacheable"
+  gem "sequel-query-cache"
   gem "redis"
 
 Source code write:
@@ -48,7 +48,7 @@ options:
   * clear model cache
   * clear all query caches of model
 
-== Contributing to sequel-cacheable
+== Contributing to sequel-query-cache
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.

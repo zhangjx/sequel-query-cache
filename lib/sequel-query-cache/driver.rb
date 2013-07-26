@@ -1,14 +1,14 @@
 # coding: utf-8
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     class Driver
       def self.from_store(store, opts={})
         case store.class.name
         when 'Memcache'
-          require 'sequel-cacheable/driver/memcache'
+          require 'sequel-query-cache/driver/memcache'
           MemcacheDriver.new(store, opts)
         when 'Dalli::Client'
-          require 'sequel-cacheable/driver/dalli'
+          require 'sequel-query-cache/driver/dalli'
           DalliDriver.new(store, opts)
         else
           Driver.new(store, opts)
@@ -45,7 +45,7 @@ module Sequel::Plugins
       private
 
       def _default_serializer
-        require 'sequel-cacheable/message_pack_serializer'
+        require 'sequel-query-cache/message_pack_serializer'
         MessagePackSerializer
       end
     end

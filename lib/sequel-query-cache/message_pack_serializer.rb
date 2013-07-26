@@ -2,7 +2,7 @@
 require 'msgpack'
 
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     module MessagePackSerializer
       def self.serialize(obj)
         obj.to_msgpack
