@@ -12,8 +12,10 @@ module Sequel::Plugins
       model.instance_eval do
         @cache_options = {
           :ttl => 3600,
-          :cache_if_limit => 1,
-          :cache_by_default => false
+          :cache_by_default => {
+            :always => false,
+            :if_limit => 1
+          }
         }.merge(opts)
 
         @cache_driver = Driver.from_store(
