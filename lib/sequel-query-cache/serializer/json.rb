@@ -2,7 +2,7 @@
 require 'json'
 
 module Sequel::Plugins
-  module Cacheable
+  module QueryCache
     module Serializer
       # While this works, if you're using binary data at all, it's not a great
       # idea and MessagePack is faster.
