@@ -8,12 +8,25 @@ require 'sequel-cacheable/dataset_methods'
 
 module Sequel::Plugins
   module Cacheable
+    CACHE_BY_DEFAULT_PROC = lambda do |ds, opts|
+      if ds.opts[:limit] && opts[:if_limit]
+        return true if
+          (opts[:if_limit] == true) ||
+          (opts[:if_limit] >= ds.opts[:limit])
+      end
+
+      false
+    end
+
     def self.configure(model, store, opts={})
       model.instance_eval do
         @cache_options = {
           :ttl => 3600,
-          :cache_if_limit => 1,
-          :cache_by_default => false
+          :cache_by_default => {
+            :proc => CACHE_BY_DEFAULT_PROC,
+            :always => true,
+            :if_limit => 1
+          }
         }.merge(opts)
 
         @cache_driver = Driver.from_store(

@@ -30,12 +30,13 @@ module Sequel::Plugins
       # applied is currently in flux.
       #++
       def is_cacheable_by_default?
-        if @opts[:limit] && cache_options[:cache_if_limit]
-          return true if
-            (cache_options[:cache_if_limit] == true) ||
-            (cache_options[:cache_if_limit] >= @opts[:limit])
+        return true if cache_options[:cache_by_default][:always]
+        proc = cache_options[:cache_by_default][:proc]
+        if proc && proc.respond_to?(:call)
+          proc.call(self, cache_options[:cache_by_default])
+        else
+          false
         end
-        cache_options[:cache_by_default]
       end
 
       # Determines whether or not a dataset should be cached. If
