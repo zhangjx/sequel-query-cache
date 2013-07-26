@@ -42,7 +42,7 @@ module Sequel::Plugins
       # <tt>@is_cacheable</tt> is set that value will be returned, otherwise the
       # default value will be returned by #is_cacheable_by_default?
       def is_cacheable?
-        defined?(@is_cacheable) ? is_cacheable_by_default? : @is_cacheable
+        defined?(@is_cacheable) ? @is_cacheable : is_cacheable_by_default?
       end
 
       # Sets the value for <tt>@is_cacheable</tt> which is used as the return
