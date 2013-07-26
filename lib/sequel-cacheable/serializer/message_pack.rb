@@ -3,13 +3,15 @@ require 'msgpack'
 
 module Sequel::Plugins
   module Cacheable
-    module MessagePackSerializer
-      def self.serialize(obj)
-        obj.to_msgpack
-      end
+    module Serializer
+      module MessagePack
+        def self.serialize(obj)
+          obj.to_msgpack
+        end
 
-      def self.deserialize(string)
-        MessagePack.unpack(string)
+        def self.deserialize(string)
+          ::MessagePack.unpack(string)
+        end
       end
     end
   end

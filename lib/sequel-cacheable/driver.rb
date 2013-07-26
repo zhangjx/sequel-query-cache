@@ -45,8 +45,13 @@ module Sequel::Plugins
       private
 
       def _default_serializer
-        require 'sequel-cacheable/message_pack_serializer'
-        MessagePackSerializer
+        if defined? MessagePack
+          require 'sequel-cacheable/serializer/message_pack'
+          Serializer::MessagePack
+        else
+          require 'sequel-cacheable/serializer/json'
+          Serializer::JSON
+        end
       end
     end
   end
