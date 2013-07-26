@@ -4,6 +4,16 @@ require 'digest/md5'
 module Sequel::Plugins
   module Cacheable
     module DatasetMethods
+      CACHE_BY_DEFAULT_PROC = lambda do |ds, opts|
+        if ds.opts[:limit] && opts[:if_limit]
+          return true if
+            (opts[:if_limit] == true) ||
+            (opts[:if_limit] >= ds.opts[:limit])
+        end
+
+        false
+      end
+
       # Returns the model's cache driver.
       #--
       # TODO: Caching should be modified to be a database/dataset extension with
@@ -27,16 +37,15 @@ module Sequel::Plugins
       # settings of the plugin.
       #--
       # TODO: Specify a place to find those settings. However, where those are
-      # applied is currently in flux.
+      # applied is currently in flux. Also, further document how this process
+      # actually works.
       #++
       def is_cacheable_by_default?
-        return true if cache_options[:cache_by_default][:always]
-        proc = cache_options[:cache_by_default][:proc]
-        if proc && proc.respond_to?(:call)
-          proc.call(self, cache_options[:cache_by_default])
-        else
-          false
-        end
+        cache_by_default = cache_options[:cache_by_default]
+        return false unless cache_by_default
+        return true if cache_by_default[:always]
+        proc = cache_by_default[:proc] || CACHE_BY_DEFAULT_PROC
+        proc.call(self, cache_by_default)
       end
 
       # Determines whether or not a dataset should be cached. If
