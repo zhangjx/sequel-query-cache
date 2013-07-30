@@ -1,65 +1,112 @@
-= sequel-query-cache http://travis-ci.org/rosylilly/sequel-query-cache.png
+Sequel Query Cache
+==================
 
-This plug-in caching mechanism to implement the Model of the Sequel
+Sequel Query Cache is a Sequel model plugin that allows the results of Sequel datasets to be cached in a key-value store like Memcached or Redis. This plugin is flexible and can easily be adapted to other key-value stores.
 
-== Usage
+Results are serialized for storage by default using JSON or [MessagePack](http://msgpack.org/) if the [MessagePack gem](https://github.com/msgpack/msgpack-ruby) is available. This is also flexible. Any object with a very simple interface can be used to serialize and unserialize data.
 
-Gemfile write:
+Sequel Query Cache was forked from Sho Kusano's [sequel-cacheable gem](https://github.com/rosylilly/sequel-cacheable) and while it has seen substantial internal architectural changes, it maintains the original spirit of being easy to adapt to multiple cache stores and serialization options.
 
-  gem "sequel"
-  gem "sequel-query-cache"
-  gem "redis"
+Installation
+------------
 
-Source code write:
+Sequel Query Cache requires [Sequel](https://github.com/jeremyevans/sequel) and one of the following gems for accessing cache store:
 
-  Sequel::Model.plugin :cacheable, Redis.new(host: 'localhost', port: 6379)
+* [Redis](https://rubygems.org/gems/redis)
+* [Hiredis](https://rubygems.org/gems/hiredis)
+* [Memcached](https://rubygems.org/gems/memcache)
+* [Dalli](https://rubygems.org/gems/dalli)
 
-Caching!
+Additionally, using [MessagePack](https://github.com/msgpack/msgpack-ruby) is strongly encouraged over the JSON default and is necessary when caching binary data.
 
-== Options
+Configuration
+-------------
 
-  Sequel::Model.plugin :cacheable, cache_client, options_hash
+First, initialize a cache client.
 
-tested cache_client:
+Using Dalli:
 
-* Redis[https://rubygems.org/gems/redis]
-* Hiredis[https://rubygems.org/gems/hiredis]
-* Memcached[https://rubygems.org/gems/memcache]
-* Dalli[https://rubygems.org/gems/dalli]
+```ruby
+CACHE_CLIENT = Dalli::Client.new('localhost:11211')
+```
 
-options:
+Using Redis:
 
-  {
-    :ttl => 3600, # time to live. default 3600
-    :pack_lib => MessagePack, # cache packing library. This Object should be have pack / unpack method.
-    :query_cache => false # enable query cache. default false
-  }
+```ruby
+CACHE_CLIENT = Redis.new(host: 'localhost', port: 6379)
+```
 
-== Cache Timing
+Then, apply the plugin to all models:
 
-* select
-  * Model.find(id) => Model Cache
-  * Model.where(cond).all => Query Cache
-* insert / update
-  * clear model cache
-  * clear all query caches of model
-  * store a new record model cache
-* delete / destroy
-  * clear model cache
-  * clear all query caches of model
+```ruby
+Sequel::Model.plugin :query_cache, CACHE_CLIENT
+```
 
-== Contributing to sequel-query-cache
+Or just a select few:
 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
-* Fork the project.
-* Start a feature/bugfix branch.
-* Commit and push until you are happy with your contribution.
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+```ruby
+MyModel.plugin :query_cache, CACHE_CLIENT
+```
 
-== Copyright
+Configuration Options
+---------------------
 
-Copyright (c) 2012 Sho Kusano <rosylilly>. See LICENSE.txt for
-further details.
+The plugin method also accepts a hash of options as a final argument, like so:
 
+```ruby
+Sequel::Model.plugin :query_cache, CACHE_CLIENT, ttl: 3600
+```
+
+The current options are:
+
+* **ttl**: Time to live. The amount of time before a given cache expires automatically.
+* **serializer**: An object that responds to serialize and unserialize methods for converting Sequel result hashs and models to serialized strings.
+* **cache_by_default**: See below.
+
+Cached Datasets
+---------------
+
+When a dataset is set to have its results cached, if a method that would return results is called (e.g. #first or #all) a check will be made to see if there are any cached results. If there are, the cached results will be used. If there are not, the results will be pulled from the database, cached in the store and then passed to the user.
+
+Whether or not dataset results are cached is determined in one of two ways. The first is to explicitly set a dataset to be cached. For example:
+
+```ruby
+MyModel.cached.all
+```
+
+This will check the cache for results and set them if they do not exist. Caching be be explicitly ignored as well:
+
+```ruby
+MyModel.uncached.all
+```
+
+The second way a determination to cache a dataset is made is by the options set by cache_by_default. By default, these are set to cache the results of any query which has a LIMIT clause set to 1.
+
+For more details on how cache_by_default, see the documentation for Sequel::Plugins::QueryCache and Sequel::Plugins::QueryCache::DatasetMethods.
+
+Caches are automatically deleted when a dataset is updated or deleted.
+
+Cached Models
+---------------
+
+Models have a few additional features on top of their respective dataset. Models can have their caches explicitly set or deleted by calling #cache! or #uncache! on a model instance.
+
+Additionally, models have an #after_save hook that updates caches associated with model instances.
+
+TODO
+----
+
+* The testing suite is completely broken and needs to be updated.
+* Additional documentation and commenting needs to be added to the source, particularly for the functionality of cache_by_default.
+* There is basically no need for this plugin to require the use of models and could be used purely as a dataset extension with a tiny model plugin built on top. This should be implemented at some point.
+
+Thanks
+------
+
+* [Sho Kusano](https://github.com/rosylilly)
+* [Jeremy Watkins](https://github.com/vegasje)
+
+Copyright
+---------
+
+Copyright (c) 2013 Joshua Hansen. See LICENSE for further details.
