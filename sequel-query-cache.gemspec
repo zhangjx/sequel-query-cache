@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.email         = ['joshua@amicus-tech.com']
   s.homepage      = 'https://github.com/binarypaladin/sequel-query-cache'
 
-  s.summary       = %q{This plug-in caching mechanism to implement the Model of the Sequel}
-  s.description   = %q{This plug-in caching mechanism to implement the Model of the Sequel}
+  s.summary       = 'A plugin for Sequel that allows dataset results to be cached in Memcached or Redis.'
+  s.description   = s.summary
 
   s.files = Dir.glob('lib/**/*') + [
      'Gemfile',
@@ -24,5 +24,5 @@ Gem::Specification.new do |s|
   s.test_files    = Dir.glob('spec/**/*')
   s.require_paths = ['lib']
 
-  s.add_dependency 'sequel'
+  s.add_dependency 'sequel', ['>= 3.42', '< 4.1.0']
 end
