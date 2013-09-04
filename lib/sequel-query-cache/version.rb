@@ -3,7 +3,7 @@ module Sequel
   module Plugins
     module QueryCache
       MAJOR_VERSION = 0
-      MINOR_VERSION = 1
+      MINOR_VERSION = 2
       TINY_VERSION  = 0
       VERSION = [MAJOR_VERSION, MINOR_VERSION, TINY_VERSION].join('.')
 

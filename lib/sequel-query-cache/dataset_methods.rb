@@ -173,11 +173,19 @@ module Sequel::Plugins
         cache_driver.del(cache_key)
       end
 
+      def cache_clear_on_update
+        @cache_clear_on_update.nil? ? true : @cache_clear_on_update
+      end
+
+      def cache_clear_on_update=(v)
+        @cache_clear_on_update = !!v
+      end
+
       # Overrides the dataset's existing +update+ method. Deletes an existing
       # cache after a successful update.
       def update(values={}, &block)
         result = super
-        cache_del if is_cacheable?
+        cache_del if is_cacheable? && cache_clear_on_update
         result
       end
 
@@ -219,6 +227,17 @@ module Sequel::Plugins
           end
         else
           super
+        end
+      end
+
+      # Sets self as the source_dataset on a result if that result supports
+      # source datasets. While it can almost certainly be presumed the result
+      # will, if the dataset's row_proc has been modified for some reason the
+      # result might be different than expected.
+      def each
+        super do |r|
+          r.source_dataset = self if r.respond_to? :source_dataset=
+          yield r
         end
       end
 
