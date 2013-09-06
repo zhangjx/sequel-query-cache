@@ -63,9 +63,9 @@ module Sequel::Plugins
 
       def source_dataset_cache?
         source_dataset &&
-          && (source_dataset != this)
-          && source_dataset.respond_to?(:is_cacheable?)
-          && source_dataset.is_cacheable?
+          (source_dataset != this) &&
+          source_dataset.respond_to?(:is_cacheable?) &&
+          source_dataset.is_cacheable?
       end
     end
   end
