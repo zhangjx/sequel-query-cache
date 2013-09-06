@@ -33,8 +33,7 @@ module Sequel::Plugins
 
       def uncache!
         this.cache_del if this.is_cacheable?
-        source_dataset.cache_del if (source_dataset != this) &&
-          source_dataset.is_cacheable?
+        source_dataset.cache_del if source_dataset_cache?
         self
       end
 
@@ -53,13 +52,20 @@ module Sequel::Plugins
       # related cached will be cleared in an attempt to clean up potentially
       # stale queries.
       def recache_source_dataset!
-        if (source_dataset != this) && source_dataset.is_cacheable?
+        if source_dataset_cache?
           if source_dataset.opts[:limit] == 1
             source_dataset.cache_set([self])
           else
             source_dataset.cache_del
           end
         end
+      end
+
+      def source_dataset_cache?
+        source_dataset &&
+          && (source_dataset != this)
+          && source_dataset.respond_to?(:is_cacheable?)
+          && source_dataset.is_cacheable?
       end
     end
   end
