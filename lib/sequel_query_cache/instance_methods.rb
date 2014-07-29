@@ -1,4 +1,5 @@
-# coding: utf-8
+# encoding: utf-8
+
 module Sequel::Plugins
   module QueryCache
     module InstanceMethods
@@ -42,6 +43,7 @@ module Sequel::Plugins
       end
 
       private
+
       # There are many instances where the dataset that creates a model instance
       # is not equal to #this. The two most common instances are when a model
       # has a unique column that is used on a regular basis to fetch records

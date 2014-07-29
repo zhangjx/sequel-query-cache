@@ -1,15 +1,20 @@
-# coding: utf-8
+# encoding: utf-8
+
 module Sequel::Plugins
   module QueryCache
     class Driver
+
       def self.from_store(store, opts={})
         case store.class.name
         when 'Memcache'
-          require 'sequel-query-cache/driver/memcache'
+          require_relative 'driver/memcache'
           MemcacheDriver.new(store, opts)
         when 'Dalli::Client'
-          require 'sequel-query-cache/driver/dalli'
+          require_relative 'driver/dalli'
           DalliDriver.new(store, opts)
+        when 'Redis'
+          require_relative 'driver/redis'
+          RedisDriver.new(store, opts)
         else
           Driver.new(store, opts)
         end
@@ -46,10 +51,10 @@ module Sequel::Plugins
 
       def _default_serializer
         if defined? MessagePack
-          require 'sequel-query-cache/serializer/message_pack'
+          require_relative 'serializer/message_pack'
           Serializer::MessagePack
         else
-          require 'sequel-query-cache/serializer/json'
+          require_relative 'serializer/json'
           Serializer::JSON
         end
       end

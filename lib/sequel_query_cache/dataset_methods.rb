@@ -1,9 +1,11 @@
-# coding: utf-8
+# encoding: utf-8
+
 require 'digest/md5'
 
 module Sequel::Plugins
   module QueryCache
     module DatasetMethods
+
       CACHE_BY_DEFAULT_PROC = lambda do |ds, opts|
         if ds.opts[:limit] && opts[:if_limit]
           return true if

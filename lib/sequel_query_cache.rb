@@ -1,10 +1,12 @@
-# coding: utf-8
+# encoding: utf-8
+
 require 'sequel'
-require 'sequel-query-cache/version'
-require 'sequel-query-cache/driver'
-require 'sequel-query-cache/class_methods'
-require 'sequel-query-cache/instance_methods'
-require 'sequel-query-cache/dataset_methods'
+
+require_relative 'sequel_query_cache/version'
+require_relative 'sequel_query_cache/driver'
+require_relative 'sequel_query_cache/class_methods'
+require_relative 'sequel_query_cache/instance_methods'
+require_relative 'sequel_query_cache/dataset_methods'
 
 module Sequel::Plugins
   module QueryCache
@@ -16,6 +18,7 @@ module Sequel::Plugins
             :always => false,
             :if_limit => 1
           }
+          #:serializer =>
         }.merge(opts)
 
         @cache_driver = Driver.from_store(

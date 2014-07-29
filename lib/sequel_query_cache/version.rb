@@ -1,4 +1,5 @@
-# coding: utf-8
+# encoding: utf-8
+
 module Sequel
   module Plugins
     module QueryCache
@@ -7,7 +8,9 @@ module Sequel
       TINY_VERSION  = 1
       VERSION = [MAJOR_VERSION, MINOR_VERSION, TINY_VERSION].join('.')
 
-      def self.version; VERSION; end
+      def self.version
+        VERSION
+      end
     end
   end
 end
