@@ -18,7 +18,6 @@ module Sequel::Plugins
             :always => false,
             :if_limit => 1
           }
-          #:serializer =>
         }.merge(opts)
 
         @cache_driver = Driver.from_store(
