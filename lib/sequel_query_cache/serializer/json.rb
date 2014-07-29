@@ -9,7 +9,7 @@ module Sequel::Plugins
       # idea and MessagePack is faster.
       module JSON
         def self.serialize(obj)
-          binding.pry
+          # binding.pry
           obj.to_json
         end
 
