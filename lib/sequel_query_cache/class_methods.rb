@@ -28,6 +28,8 @@ module Sequel::Plugins
       def default_cached
         dataset.default_cached
       end
+
+      Sequel::Plugins.inherited_instance_variables(self, :@cache_driver => nil, :@cache_options => nil)
     end
   end
 end
